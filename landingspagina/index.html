@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpdrachtZeker — Zeker weten dat je ZZP-samenwerking standhoudt</title>
+<meta name="description" content="De Belastingdienst oordeelt over de feitelijke werksituatie, niet over je contract. OpdrachtZeker bewaakt dat continu. Gratis beta voor de eerste 25 agencies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A0F; --bg2:#0C1018;
+    --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.055);
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --text:#ECEEF3; --muted:#98A1B2; --faint:#6B7382;
+    --gold:#E2B866; --gold2:#C9973F; --gold-dim:rgba(226,184,102,.16);
+    --green:#5FD39A; --red:#F2737B; --amber:#F5B85C;
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(226,184,102,.12), transparent 60%),
+      radial-gradient(800px 600px at -10% 110%, rgba(90,120,220,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    background-attachment:fixed}
+  .wrap{max-width:1140px;margin:0 auto;padding:32px 32px 80px}
+
+  /* nav */
+  nav{display:flex;justify-content:space-between;align-items:center;padding:8px 0 40px}
+  .brand{display:flex;gap:13px;align-items:center}
+  .mark{width:46px;height:46px;border-radius:14px;flex:none;
+    background:linear-gradient(150deg,#1A1E2B,#0D1017);border:1px solid rgba(226,184,102,.35);
+    box-shadow:0 12px 34px -12px rgba(226,184,102,.35);display:flex;align-items:center;justify-content:center}
+  .mark span{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--gold);line-height:1}
+  .brand b{font-family:var(--serif);font-size:19px;font-weight:500;letter-spacing:.01em}
+  .navlinks{display:flex;gap:26px;align-items:center}
+  .navlinks a{color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:500;transition:color .2s}
+  .navlinks a:hover{color:var(--gold)}
+
+  /* hero */
+  .hero{padding:26px 0 58px;display:grid;grid-template-columns:1.15fr .85fr;gap:52px;align-items:center}
+  @media(max-width:920px){.hero{grid-template-columns:1fr;gap:34px}}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;
+    background:var(--gold-dim);border:1px solid rgba(226,184,102,.3);color:var(--gold);
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:22px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+  h1{font-family:var(--serif);font-size:clamp(34px,5vw,56px);font-weight:500;letter-spacing:-.015em;line-height:1.08}
+  h1 em{font-style:italic;color:var(--gold)}
+  .lead{font-size:17px;color:var(--muted);margin:22px 0 30px;max-width:540px}
+  .lead b{color:var(--text);font-weight:600}
+  .cta-row{display:flex;gap:13px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 28px;border-radius:13px;
+    font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;border:0;transition:all .22s ease;text-decoration:none}
+  .btn-gold{background:linear-gradient(140deg,var(--gold),#D9AE5B);color:#12141C;box-shadow:0 14px 34px -10px rgba(226,184,102,.55)}
+  .btn-gold:hover{transform:translateY(-2px)}
+  .btn-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line2)}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+  .trust{margin-top:26px;display:flex;gap:26px;flex-wrap:wrap;color:var(--faint);font-size:12.5px}
+  .trust span{display:flex;align-items:center;gap:8px}
+  .trust .tdot{width:5px;height:5px;border-radius:50%;background:var(--gold2)}
+
+  /* formulier-kaart */
+  .formcard{background:linear-gradient(165deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:22px;box-shadow:var(--shadow);padding:30px 30px 26px;backdrop-filter:blur(14px)}
+  .formcard h2{font-family:var(--serif);font-size:23px;font-weight:500;margin-bottom:4px}
+  .formcard .fsub{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+  .field input, .field select, .field textarea{
+    width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(255,255,255,.04);color:var(--text);font-family:var(--sans);font-size:14px;transition:border .2s}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:rgba(226,184,102,.55)}
+  .field input::placeholder{color:var(--faint)}
+  .field select option{background:#141824}
+  .err{color:var(--red);font-size:11.5px;margin-top:5px;display:none}
+  .field.invalid input, .field.invalid select{border-color:rgba(242,115,123,.6)}
+  .field.invalid .err{display:block}
+  .fbtn{width:100%;margin-top:8px}
+  .fnote{font-size:11px;color:var(--faint);margin-top:13px;text-align:center}
+  .success{text-align:center;padding:26px 8px}
+  .success .check{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;
+    background:rgba(95,211,154,.14);border:1px solid rgba(95,211,154,.35);color:var(--green);font-size:30px}
+  .success h2{margin-bottom:8px}
+  .success p{color:var(--muted);font-size:14px}
+
+  /* secties */
+  section{padding:56px 0 0}
+  .sec-label{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold2);margin-bottom:14px}
+  h2.sec{font-family:var(--serif);font-size:clamp(25px,3.2vw,36px);font-weight:500;letter-spacing:-.01em;line-height:1.15;max-width:720px}
+  h2.sec em{font-style:italic;color:var(--gold)}
+  .sec-sub{color:var(--muted);font-size:15.5px;margin-top:14px;max-width:680px}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  @media(max-width:820px){.stats{grid-template-columns:1fr}}
+  .stat{padding:26px 26px 22px;border-radius:18px;border:1px solid var(--line);
+    background:linear-gradient(165deg,var(--panel2),var(--panel));box-shadow:var(--shadow)}
+  .stat .num{font-family:var(--serif);font-size:38px;font-weight:600;letter-spacing:-.02em;color:var(--gold)}
+  .stat .txt{font-size:13.5px;color:var(--muted);margin-top:8px}
+  .stat .src{font-size:10.5px;color:var(--faint);margin-top:10px}
+
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{padding:28px 26px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(165deg,var(--panel2),var(--panel))}
+  .step .n{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:var(--gold-dim);border:1px solid rgba(226,184,102,.3);color:var(--gold);font-weight:700;font-size:15px;margin-bottom:16px}
+  .step h3{font-family:var(--serif);font-size:19px;font-weight:500;margin-bottom:8px}
+  .step p{font-size:13.5px;color:var(--muted)}
+
+  .beta{margin-top:56px;padding:40px;border-radius:22px;border:1px solid rgba(226,184,102,.28);
+    background:linear-gradient(150deg, rgba(226,184,102,.10), rgba(226,184,102,.025));
+    display:grid;grid-template-columns:1.3fr .7fr;gap:32px;align-items:center}
+  @media(max-width:820px){.beta{grid-template-columns:1fr}}
+  .beta h2{font-family:var(--serif);font-size:clamp(23px,3vw,31px);font-weight:500;line-height:1.2}
+  .beta p{color:var(--muted);font-size:14.5px;margin-top:12px}
+  .beta ul{margin:16px 0 0;padding-left:0;list-style:none}
+  .beta li{font-size:13.5px;color:var(--muted);padding:7px 0 7px 26px;position:relative}
+  .beta li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+
+  .faq{margin-top:34px;display:grid;gap:12px}
+  .qa{padding:22px 26px;border-radius:16px;border:1px solid var(--line);background:var(--panel)}
+  .qa h4{font-family:var(--serif);font-size:17px;font-weight:500;margin-bottom:7px}
+  .qa p{font-size:13.5px;color:var(--muted)}
+
+  footer{margin-top:64px;padding-top:26px;border-top:1px solid var(--line);
+    display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;color:var(--faint);font-size:12px}
+  footer a{color:var(--muted);text-decoration:none}
+  footer a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="brand"><div class="mark"><span>O</span></div><b>OpdrachtZeker</b></div>
+    <div class="navlinks">
+      <a href="#hoe">Hoe het werkt</a>
+      <a href="../risicoscan/index.html">Gratis risicoscan</a>
+      <a href="#aanmelden" class="btn btn-gold" style="padding:10px 20px;font-size:13.5px">Gratis beta →</a>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <div class="hero">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Gratis beta · eerste 25 agencies</div>
+      <h1>Zeker weten dat je ZZP-samenwerking <em>standhoudt</em> — vóór de Belastingdienst het vraagt.</h1>
+      <p class="lead">Je modelovereenkomst geeft <b>geen zekerheid</b>. De wet oordeelt over de <b>feitelijke werksituatie</b>: wie bepaalt de werkwijze, mag iemand zich laten vervangen, wie draagt het risico. OpdrachtZeker bewaakt dat continu en maakt je verdedigbaar.</p>
+      <div class="cta-row">
+        <a class="btn btn-gold" href="../risicoscan/index.html">Doe de gratis risicoscan</a>
+        <a class="btn btn-ghost" href="#aanmelden">Aanmelden voor de beta</a>
+      </div>
+      <div class="trust">
+        <span><span class="tdot"></span>Geen juridisch geneuzel — direct inzicht</span>
+        <span><span class="tdot"></span>Voor opdrachtgever én ZZP'er</span>
+        <span><span class="tdot"></span>Verdedigbaar dossier i.p.v. papier</span>
+      </div>
+    </div>
+
+    <!-- ============ WACHTLIJSTFORMULIER ============ -->
+    <div class="formcard" id="aanmelden">
+      <div id="formWrap">
+        <h2>Meld je aan voor de gratis beta</h2>
+        <div class="fsub">De eerste 25 agencies bouwen gratis mee. Daarna abonnementen — beta-klanten houden een vroege-vogelkorting.</div>
+        <form id="waitlistForm" novalidate>
+          <div class="field" id="f-naam">
+            <label for="naam">Naam</label>
+            <input id="naam" name="naam" type="text" placeholder="Je naam" autocomplete="name">
+            <div class="err">Vul je naam in.</div>
+          </div>
+          <div class="field" id="f-email">
+            <label for="email">Zakelijk e-mailadres</label>
+            <input id="email" name="email" type="email" placeholder="jij@agency.nl" autocomplete="email">
+            <div class="err">Vul een geldig e-mailadres in.</div>
+          </div>
+          <div class="field" id="f-bedrijf">
+            <label for="bedrijf">Bedrijf</label>
+            <input id="bedrijf" name="bedrijf" type="text" placeholder="Naam van je bureau of bedrijf" autocomplete="organization">
+            <div class="err">Vul je bedrijfsnaam in.</div>
+          </div>
+          <div class="field" id="f-zzp">
+            <label for="zzp">Hoeveel ZZP'ers werk je mee?</label>
+            <select id="zzp" name="zzp">
+              <option value="">Kies een optie</option>
+              <option>1 – 5</option>
+              <option>6 – 20</option>
+              <option>21 – 50</option>
+              <option>50+</option>
+            </select>
+            <div class="err">Kies een optie.</div>
+          </div>
+          <button type="submit" class="btn btn-gold fbtn">Aanmelden — gratis</button>
+          <div class="fnote">Geen spam. Je gegevens blijven van jou — afmelden kan altijd.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PROBLEEM ============ -->
+  <section>
+    <div class="sec-label">Het probleem</div>
+    <h2 class="sec">Iedereen verkoopt je een contract. <em>Niemand bewaakt de praktijk.</em></h2>
+    <div class="sec-sub">Sinds 1 januari 2025 mag de Belastingdienst weer volledig handhaven op schijnzelfstandigheid. De onzekerheid is groot — en de huidige oplossingen richten zich allemaal op papier, terwijl de wet naar de feiten kijkt.</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="num">1 op 3</div>
+        <div class="txt">opdrachtgevers stopte al met (of overwoog te stoppen) het inhuren van ZZP'er sinds de handhaving.</div>
+        <div class="src">Bron: KVK-onderzoek, 2025</div>
+      </div>
+      <div class="stat">
+        <div class="num">€99–€195</div>
+        <div class="txt">betaal je voor een modelovereenkomst of contractcheck — die expliciet géén zekerheid geeft over je werksituatie.</div>
+        <div class="src">Bron: publieke prijzen DAS/Bleijerveld, 2026</div>
+      </div>
+      <div class="stat">
+        <div class="num">~5%</div>
+        <div class="txt">van de factuurwaarde kost payroll — de "oplossing" die 3× duurder is en je flexibiliteit wegneemt.</div>
+        <div class="src">Bron: publieke payroll-indicatie, 2026</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOE HET WERKT ============ -->
+  <section id="hoe">
+    <div class="sec-label">Hoe het werkt</div>
+    <h2 class="sec">Van papier naar <em>bewijs</em> — in drie stappen.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>Scan de feitelijke situatie</h3>
+        <p>Beantwoord 12 vragen over de echte werksituatie — leiding &amp; toezicht, vervangbaarheid, ondernemersrisico, inbedding. Direct een groen/oranje/rood dossier met onderbouwing per criterium.</p>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3>Continu bewijsdossier</h3>
+        <p>De samenwerking verandert, je contract niet. OpdrachtZeker bouwt een tijdlijn van hoe de praktijk écht verloopt en signaleert wanneer je van groen naar oranje glijdt.</p>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>Verdedigbaar bij controle</h3>
+        <p>Eén export die een boekenonderzoek overleeft: tijdlijn, onderbouwing en acties. En als het toch misgaat: directe route naar payroll of juridische bijstand.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BETA-AANBOD ============ -->
+  <div class="beta">
+    <div>
+      <h2>Gratis meedoen. Meebouwen. Dan pas betalen.</h2>
+      <p>We starten met een gratis beta voor de eerste 25 agencies en MKB-bedrijven die veel met ZZP'ers werken. Jij krijgt het volledige product zolang de beta loopt — en als we naar abonnementen gaan, houd jij een blijvende vroege-vogelkorting.</p>
+      <ul>
+        <li>Volledige risicoscan + bewijsdossier voor al je opdrachten</li>
+        <li>Persoonlijke onboarding en directe lijn naar de makers</li>
+        <li>Invloed op de roadmap — jij bepaalt wat we als eerste bouwen</li>
+        <li>Geen betaalgegevens nodig, geen verplichtingen</li>
+      </ul>
+    </div>
+    <div style="text-align:center">
+      <a class="btn btn-gold" href="#aanmelden" style="width:100%;padding:17px">Claim je plek →</a>
+      <div style="font-size:12px;color:var(--faint);margin-top:12px">Nog beperkt plek · start binnen 2 weken</div>
+    </div>
+  </div>
+
+  <!-- ============ FAQ ============ -->
+  <section>
+    <div class="sec-label">Veelgestelde vragen</div>
+    <h2 class="sec">Eerlijk, zonder <em>juridisch geneuzel</em>.</h2>
+    <div class="faq">
+      <div class="qa">
+        <h4>Geeft dit zekerheid dat ik geen naheffing krijg?</h4>
+        <p>Nee — en wie iets anders belooft, verkoopt je een illusie. Wij verkopen <b>bewijs en risicoreductie</b>: je weet precies waar je risico's liggen, je pakt ze aan, en je kunt laten zien dat je er serieus werk van hebt gemaakt. Dat is precies wat bij handhaving telt.</p>
+      </div>
+      <div class="qa">
+        <h4>Waarom is mijn modelovereenkomst dan niet genoeg?</h4>
+        <p>De Belastingdienst zegt het zelf: de overeenkomst is niet leidend, de <b>feitelijke werksituatie</b> wel. Als je praktijk afwijkt van je papier — vaste werktijden, geen vervanging, één klant — telt dat papier niet meer.</p>
+      </div>
+      <div class="qa">
+        <h4>Voor wie is OpdrachtZeker bedoeld?</h4>
+        <p>Voor organisaties die structureel met ZZP'ers werken: (digitale/creatieve) agencies, MKB, zorg- en onderwijsinstellingen. En voor ZZP'ers zelf: bewijs dat je écht ondernemer bent, bruikbaar bij elke opdrachtgever.</p>
+      </div>
+      <div class="qa">
+        <h4>Wat kost het na de beta?</h4>
+        <p>De beta is gratis. Daarna komen er abonnementen vanaf ca. €149/maand voor opdrachtgevers — beta-klanten houden vroege-vogelkorting. De gratis risicoscan blijft altijd gratis.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 OpdrachtZeker · bewijsplatform voor ZZP-werkrelaties</div>
+    <div>
+      <a href="../risicoscan/index.html">Gratis risicoscan</a> ·
+      <a href="#aanmelden">Aanmelden beta</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* Wachtlijst-formulier.
+   MODUS "local": inschrijvingen worden lokaal bewaard (localStorage) — werkt direct,
+   ideaal voor de beta-fase en demo's.
+   MODUS "endpoint": vul ENDPOINT in (bijv. je Formspree/Buttondown-webhook-URL) en
+   elke inschrijving wordt ook daarheen gestuurd zodra je een provider hebt. */
+const ENDPOINT = ""; // bv. "https://formspree.io/f/xxxxxxx"
+const STORE_KEY = "opdrachtzeker_wachtlijst";
+
+const form = document.getElementById("waitlistForm");
+const geldigEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+function valideer() {
+  let ok = true;
+  const checks = [
+    ["f-naam", () => document.getElementById("naam").value.trim().length >= 2],
+    ["f-email", () => geldigEmail(document.getElementById("email").value.trim())],
+    ["f-bedrijf", () => document.getElementById("bedrijf").value.trim().length >= 2],
+    ["f-zzp", () => document.getElementById("zzp").value !== ""],
+  ];
+  for (const [id, test] of checks) {
+    const el = document.getElementById(id);
+    const goed = test();
+    el.classList.toggle("invalid", !goed);
+    if (!goed) ok = false;
+  }
+  return ok;
+}
+
+function bewaar(inschrijving) {
+  const lijst = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+  lijst.push(inschrijving);
+  localStorage.setItem(STORE_KEY, JSON.stringify(lijst));
+  return lijst.length;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!valideer()) return;
+  const inschrijving = {
+    naam: document.getElementById("naam").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    bedrijf: document.getElementById("bedrijf").value.trim(),
+    zzp: document.getElementById("zzp").value,
+    bron: "landingspagina",
+    tijdstip: new Date().toISOString(),
+  };
+
+  if (ENDPOINT) {
+    try {
+      await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(inschrijving),
+      });
+    } catch (_) { /* lokale opslag blijft de vangnet */ }
+  }
+  const plek = bewaar(inschrijving);
+
+  document.getElementById("formWrap").innerHTML = `
+    <div class="success">
+      <div class="check">✓</div>
+      <h2>Je staat op de lijst, ${inschrijving.naam.split(" ")[0]}!</h2>
+      <p>Je bent inschrijving <b>#${plek}</b> voor de gratis beta.<br>
+      We nemen binnenkort contact op via <b>${inschrijving.email}</b>.</p>
+      <p style="margin-top:18px">Wil je nu al aan de slag? Doe de
+        <a href="../risicoscan/index.html" style="color:var(--gold);font-weight:600">gratis DBA-risicoscan</a>.</p>
+    </div>`;
+});
+</script>
+</body>
+</html>

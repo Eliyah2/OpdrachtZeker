@@ -1,0 +1,14 @@
+#!/bin/sh
+# Draait bij elke commit: xlsx-model en dashboard mogen nooit uit elkaar lopen.
+# Geactiveerd met: git config core.hooksPath hooks
+set -e
+
+if [ -x ".venv-model/Scripts/python" ]; then PY=".venv-model/Scripts/python"; else PY="python3"; fi
+
+echo "pre-commit: valideren financieel model (xlsx)..."
+"$PY" scripts/verifieer_model.py | tail -1
+
+echo "pre-commit: toetsen model-sync (xlsx-mirror vs dashboard)..."
+"$PY" scripts/toets_model_sync.py
+
+echo "pre-commit: OK - model en dashboard zijn synchroon."
