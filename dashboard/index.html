@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpdrachtZeker — Financieel Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A0F; --bg2:#0C1018;
+    --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.055);
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --text:#ECEEF3; --muted:#98A1B2; --faint:#6B7382;
+    --gold:#E2B866; --gold2:#C9973F; --gold-dim:rgba(226,184,102,.16);
+    --green:#5FD39A; --red:#F2737B; --blue:#86A9FF; --amber:#F5B85C;
+    --serif:"Fraunces",Georgia,"Times New Roman",serif;
+    --sans:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans); color:var(--text); background:var(--bg);
+    min-height:100vh; line-height:1.5; -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(226,184,102,.10), transparent 60%),
+      radial-gradient(800px 600px at -10% 110%, rgba(90,120,220,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1360px;margin:0 auto;padding:36px 32px 64px}
+
+  /* ---------- header ---------- */
+  header{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between;margin-bottom:34px}
+  .brand{display:flex;gap:18px;align-items:center}
+  .mark{
+    width:58px;height:58px;border-radius:17px;flex:none;position:relative;
+    background:linear-gradient(150deg,#1A1E2B,#0D1017);
+    border:1px solid rgba(226,184,102,.35);
+    box-shadow:0 12px 34px -12px rgba(226,184,102,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mark span{font-family:var(--serif);font-size:30px;font-weight:600;color:var(--gold);line-height:1}
+  h1{font-family:var(--serif);font-size:clamp(26px,3.2vw,38px);font-weight:500;letter-spacing:-.01em;line-height:1.12}
+  h1 em{font-style:italic;color:var(--gold)}
+  .sub{color:var(--muted);font-size:14.5px;margin-top:5px;max-width:560px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+    background:var(--gold-dim);border:1px solid rgba(226,184,102,.30);
+    color:var(--gold);font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+  .controls{display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+  .segmented{display:flex;gap:4px;padding:5px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+  .segmented button{
+    font-family:var(--sans);font-size:12.5px;font-weight:600;color:var(--muted);
+    background:transparent;border:0;padding:9px 16px;border-radius:10px;cursor:pointer;
+    transition:all .22s ease;letter-spacing:.02em;
+  }
+  .segmented button:hover{color:var(--text);background:rgba(255,255,255,.05)}
+  .segmented button.active{color:#12141C;background:linear-gradient(140deg,var(--gold),#D9AE5B);box-shadow:0 8px 22px -8px rgba(226,184,102,.55)}
+  .beta-chip{
+    display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);
+    padding:8px 15px;border-radius:12px;background:var(--panel);border:1px solid var(--line);
+  }
+  .beta-chip b{color:var(--gold);font-weight:600}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:352px 1fr;gap:26px;align-items:start}
+  @media(max-width:1080px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:linear-gradient(165deg,var(--panel2),var(--panel));
+    border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    transition:transform .25s ease, border-color .25s ease;
+  }
+  .card:hover{transform:translateY(-2px);border-color:var(--line2)}
+  .card h2{
+    font-family:var(--serif);font-size:17px;font-weight:500;letter-spacing:.01em;
+    padding:20px 22px 0;display:flex;align-items:center;gap:10px;
+  }
+  .card h2 .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+  /* ---------- sliders ---------- */
+  .panel-body{padding:16px 22px 24px}
+  .section-label{
+    font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);margin:18px 0 12px;display:flex;align-items:center;gap:10px;
+  }
+  .section-label:first-child{margin-top:2px}
+  .section-label .rule{flex:1;height:1px;background:var(--line)}
+  .slider-row{margin-bottom:15px}
+  .slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .slider-top label{font-size:12.5px;color:var(--muted);font-weight:500}
+  .slider-top output{font-size:13px;font-weight:600;color:var(--gold);font-variant-numeric:tabular-nums}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:99px;outline:none;
+    background:linear-gradient(90deg,var(--gold2) var(--fill,50%), rgba(255,255,255,.10) var(--fill,50%));
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:19px;height:19px;border-radius:50%;
+    background:linear-gradient(150deg,#F4D89A,var(--gold2));border:2px solid #12141C;
+    box-shadow:0 6px 16px -4px rgba(226,184,102,.6);cursor:grab;transition:transform .15s ease;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+  input[type=range]::-moz-range-thumb{
+    width:17px;height:17px;border-radius:50%;background:var(--gold);border:2px solid #12141C;cursor:grab;
+  }
+
+  /* ---------- KPI cards ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{padding:20px 22px 18px;position:relative;overflow:hidden}
+  .kpi::after{
+    content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;
+    background:radial-gradient(220px 120px at 100% 0%, rgba(226,184,102,.10), transparent 70%);
+  }
+  .kpi-label{font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+  .kpi-value{font-size:clamp(22px,2.4vw,29px);font-weight:600;letter-spacing:-.02em;margin:9px 0 3px;font-variant-numeric:tabular-nums}
+  .kpi-sub{font-size:11.5px;color:var(--faint)}
+  .delta{
+    display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:4px 10px;border-radius:999px;
+    font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;
+    background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--muted);
+  }
+  .delta.up{color:var(--green);background:rgba(95,211,154,.10);border-color:rgba(95,211,154,.25)}
+  .delta.down{color:var(--red);background:rgba(242,115,123,.10);border-color:rgba(242,115,123,.25)}
+  .kpi-value.neg{color:var(--red)} .kpi-value.pos{color:var(--green)}
+
+  /* ---------- charts & table ---------- */
+  .chart-card{padding:8px 10px 18px}
+  .chart-card h2{padding:16px 12px 4px}
+  svg.chart{width:100%;height:auto;display:block}
+  .legend{display:flex;gap:20px;padding:6px 14px 0;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+  .swatch{width:18px;height:3px;border-radius:99px}
+  .swatch.dashed{background:repeating-linear-gradient(90deg,var(--faint) 0 5px,transparent 5px 10px)}
+
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  thead th{
+    font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    text-align:right;padding:10px 14px;border-bottom:1px solid var(--line);
+  }
+  thead th:first-child{text-align:left}
+  tbody td{padding:9px 14px;font-size:13px;text-align:right;border-bottom:1px solid rgba(255,255,255,.045)}
+  tbody td:first-child{text-align:left;color:var(--muted)}
+  tbody tr{transition:background .18s ease}
+  tbody tr:hover{background:rgba(255,255,255,.035)}
+  tbody tr.free-month{background:rgba(226,184,102,.055)}
+  tbody tr.free-month td:first-child::after{
+    content:"BETA";margin-left:9px;font-size:8.5px;font-weight:700;letter-spacing:.12em;
+    color:var(--gold);background:var(--gold-dim);padding:2px 7px;border-radius:99px;vertical-align:2px;
+  }
+  .neg{color:var(--red)} .pos{color:var(--green)}
+
+  .banner{
+    display:flex;gap:14px;align-items:flex-start;padding:16px 20px;border-radius:16px;
+    font-size:13.5px;margin-bottom:22px;border:1px solid;
+  }
+  .banner .icon{font-size:19px;line-height:1.3}
+  .banner b{font-weight:600}
+  .banner.warn{background:rgba(245,184,92,.09);border-color:rgba(245,184,92,.30);color:#F3D9AE}
+  .banner.ok{background:rgba(95,211,154,.08);border-color:rgba(95,211,154,.22);color:#C8F0DD}
+
+  footer{
+    margin-top:40px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--faint);font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  }
+  footer b{color:var(--muted);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="brand">
+        <div class="mark"><span>O</span></div>
+        <div>
+          <h1>OpdrachtZeker — <em>Financieel Model</em></h1>
+          <div class="sub">Live scenario-dashboard. Speel met prijzen, churn, CAC en de gratis beta-fase — kaspositie en break-even bewegen direct mee.</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <div class="badge"><span class="dot"></span>Live model</div>
+        <div class="beta-chip" id="betaChip">Strategie: <b>gratis beta t/m maand 3</b> → abonnementen zodra er betalende mensen zijn</div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="segmented" id="presets">
+        <button data-preset="pessimistisch">Pessimistisch</button>
+        <button data-preset="base" class="active">Base case</button>
+        <button data-preset="optimistisch">Optimistisch</button>
+        <button data-preset="reset">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- ============ SLIDERS ============ -->
+    <aside class="card">
+      <h2>Aannames <span class="rule"></span></h2>
+      <div class="panel-body" id="sliderPanel"></div>
+    </aside>
+
+    <!-- ============ OUTPUT ============ -->
+    <main>
+      <div class="banner" id="banner"></div>
+
+      <div class="kpis" id="kpis">
+        <div class="card kpi"><div class="kpi-label">Break-even</div><div class="kpi-value" id="kpi-be">—</div><div class="kpi-sub">eerste maand met positief resultaat</div><div class="delta" id="d-be">—</div></div>
+        <div class="card kpi"><div class="kpi-label">Min. startkapitaal nodig</div><div class="kpi-value" id="kpi-kap">—</div><div class="kpi-sub">dieptepunt van de kas dat gedekt moet zijn</div><div class="delta" id="d-kap">—</div></div>
+        <div class="card kpi"><div class="kpi-label">Kas-dieptepunt</div><div class="kpi-value" id="kpi-dip">—</div><div class="kpi-sub" id="kpi-dip-sub">laagste kasstand</div><div class="delta" id="d-dip">—</div></div>
+        <div class="card kpi"><div class="kpi-label">Kas eind maand 12</div><div class="kpi-value" id="kpi-kas">—</div><div class="kpi-sub">inclusief startkapitaal</div><div class="delta" id="d-kas">—</div></div>
+        <div class="card kpi"><div class="kpi-label">Omzet maand 12</div><div class="kpi-value" id="kpi-omzet">—</div><div class="kpi-sub">abonnementen + ZZP Pro + commissies</div><div class="delta" id="d-omzet">—</div></div>
+        <div class="card kpi"><div class="kpi-label">LTV ÷ CAC</div><div class="kpi-value" id="kpi-ltv">—</div><div class="kpi-sub">brutomarge 80% · target ≥ 3</div><div class="delta" id="d-ltv">—</div></div>
+      </div>
+
+      <div class="card chart-card" style="margin-top:22px">
+        <h2>Kaspositie per maand <span class="rule"></span></h2>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--gold)"></span>Huidige scenario</span>
+          <span><span class="swatch dashed"></span>Base case</span>
+          <span><span class="swatch" style="background:var(--red)"></span>Nul-lijn</span>
+        </div>
+        <div id="chartKas"></div>
+      </div>
+
+      <div class="card chart-card" style="margin-top:22px">
+        <h2>Omzet vs. kosten <span class="rule"></span></h2>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--green)"></span>Omzet</span>
+          <span><span class="swatch" style="background:var(--red)"></span>Kosten</span>
+          <span><span class="swatch dashed"></span>Omzet base case</span>
+        </div>
+        <div id="chartOmzet"></div>
+      </div>
+
+      <div class="card chart-card" style="margin-top:22px">
+        <h2>Actieve opdrachtgevers <span class="rule"></span></h2>
+        <div id="chartKlanten"></div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2>Maandoverzicht <span class="rule"></span></h2>
+        <div class="panel-body" style="padding:12px 10px 20px">
+          <table>
+            <thead><tr>
+              <th>Maand</th><th>Actieve klanten</th><th>Omzet</th><th>Kosten</th><th>Resultaat</th><th>Kas</th>
+            </tr></thead>
+            <tbody id="tabelBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <div>Bron van waarheid: <b>OpdrachtZeker-financieel-model.xlsx</b> — deze pagina speelt exact dezelfde rekentabel na (half-up afronding, identieke formules).</div>
+    <div>Prognose &amp; beslissingsinstrument · geen garantie · <b>OpdrachtZeker © 2026</b></div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   Model — 1-op-1 met scripts/financieel_model_bouwen.py
+   ============================================================ */
+const NEWFREE = [50, 70, 90, 110, 140, 170, 200, 240, 280, 320, 370, 420];
+const FIXED = { churnPro: 0.02, commissie: 15, cloud: 500, cloudKlant: 2, tooling: 400, juridisch: 2500, marge: 0.8 };
+
+const DEFAULTS = {
+  startkapitaal: 75000, arpu: 230, proPrijs: 12, conversie: 0.04, churn: 0.03,
+  cac: 600, salesNew: 2, salaris: 5000, salesHire: 4500,
+  mkt1: 1000, mkt2: 2000, mkt3: 3000, betaEinde: 3, betaBoost: 1.5
+};
+
+const rnd = x => Math.round(x); // half-up = Excel ROUND
+
+function runModel(p) {
+  const v = { ...FIXED, ...p };
+  let act = 0, pro = 0, free = 0, kasZ = 0;
+  const rows = [];
+  for (let m = 1; m <= 12; m++) {
+    const mkt = m <= 3 ? v.mkt1 : (m <= 6 ? v.mkt2 : v.mkt3);
+    const newco = rnd(mkt / v.cac * (m <= v.betaEinde ? v.betaBoost : 1));
+    const sales = m >= 7 ? v.salesNew : 0;
+    const churnco = m === 1 ? 0 : rnd(act * v.churn);
+    act = act + newco + sales - churnco;
+    free += NEWFREE[m - 1];
+    const newpro = rnd(NEWFREE[m - 1] * v.conversie);
+    const churnpro = m === 1 ? 0 : rnd(pro * v.churnPro);
+    pro = pro + newpro - churnpro;
+    const paid = m <= v.betaEinde ? 0 : 1;
+    const omzet = (act * v.arpu + pro * v.proPrijs + (m >= 4 ? act * v.commissie : 0)) * paid;
+    const kpers = v.salaris + (m >= 7 ? v.salesHire : 0);
+    const ktech = v.cloud + act * v.cloudKlant;
+    const kover = v.tooling + (m === 2 ? v.juridisch : 0);
+    const ktot = kpers + mkt + ktech + kover;
+    const res = omzet - ktot;
+    kasZ += res;
+    rows.push({ m, act, pro, paid, omzet, ktot, res, kasZ, kas: v.startkapitaal + kasZ });
+  }
+  const beRow = rows.find(r => r.res >= 0);
+  const dipZ = Math.min(...rows.map(r => r.kasZ));
+  const dipRow = rows.reduce((a, b) => (b.kas < a.kas ? b : a));
+  const ltv = v.arpu * (1 / v.churn) * v.marge;
+  return {
+    rows, be: beRow ? beRow.m : null, minKap: Math.max(0, -dipZ),
+    dipZ, dipKas: dipRow.kas, dipMonth: dipRow.m,
+    kasZ12: rows[11].kasZ, kas12: rows[11].kas, omzet12: rows[11].omzet,
+    ltv, ltvCac: ltv / v.cac
+  };
+}
+
+/* ============================================================
+   Formatters
+   ============================================================ */
+const nf = new Intl.NumberFormat("nl-NL");
+const eur = v => (v < 0 ? "−€" : "€") + nf.format(Math.abs(Math.round(v)));
+const eur0 = v => "€" + nf.format(Math.round(v));
+const pct = v => nf.format(Math.round(v * 1000) / 10) + "%";
+const kEUR = v => (v < 0 ? "−€" : "€") + Math.abs(Math.round(v / 1000)) + "k";
+
+/* ============================================================
+   Sliders
+   ============================================================ */
+const SECTIONS = [
+  { label: "Beta & prijzen", items: [
+    { key: "betaEinde", label: "Gratis beta t/m maand", min: 0, max: 12, step: 1, fmt: v => v === 0 ? "geen beta" : "maand " + v },
+    { key: "betaBoost", label: "Groei-boost tijdens beta", min: 1, max: 3, step: .1, fmt: v => nf.format(v) + "×" },
+    { key: "arpu", label: "Abonnement opdrachtgever", min: 100, max: 500, step: 5, fmt: eur0 },
+    { key: "proPrijs", label: "ZZP Pro prijs", min: 0, max: 30, step: 1, fmt: eur0 }
+  ]},
+  { label: "Groei & marketing", items: [
+    { key: "churn", label: "Maandelijkse churn", min: 0, max: .10, step: .005, fmt: pct },
+    { key: "cac", label: "CAC per opdrachtgever", min: 200, max: 2000, step: 50, fmt: eur0 },
+    { key: "conversie", label: "Conversie → ZZP Pro", min: 0, max: .15, step: .005, fmt: pct },
+    { key: "salesNew", label: "Directe sales (vanaf mnd 7)", min: 0, max: 10, step: 1, fmt: v => nf.format(v) + " /mnd" },
+    { key: "mkt1", label: "Marketing mnd 1–3", min: 0, max: 5000, step: 250, fmt: eur0 },
+    { key: "mkt2", label: "Marketing mnd 4–6", min: 0, max: 8000, step: 250, fmt: eur0 },
+    { key: "mkt3", label: "Marketing mnd 7–12", min: 0, max: 15000, step: 500, fmt: eur0 }
+  ]},
+  { label: "Kosten & start", items: [
+    { key: "startkapitaal", label: "Startkapitaal", min: 25000, max: 150000, step: 5000, fmt: eur0 },
+    { key: "salaris", label: "Oprichtersalaris (2×)", min: 2000, max: 15000, step: 500, fmt: eur0 },
+    { key: "salesHire", label: "Sales-hire (vanaf mnd 7)", min: 0, max: 10000, step: 500, fmt: eur0 }
+  ]}
+];
+
+const state = { ...DEFAULTS };
+const sliderEls = {};
+
+function buildSliders() {
+  const panel = document.getElementById("sliderPanel");
+  let html = "";
+  for (const sec of SECTIONS) {
+    html += `<div class="section-label">${sec.label}<span class="rule"></span></div>`;
+    for (const it of sec.items) {
+      html += `<div class="slider-row">
+        <div class="slider-top"><label for="s-${it.key}">${it.label}</label><output id="o-${it.key}"></output></div>
+        <input type="range" id="s-${it.key}" min="${it.min}" max="${it.max}" step="${it.step}">
+      </div>`;
+    }
+  }
+  panel.innerHTML = html;
+  for (const sec of SECTIONS) for (const it of sec.items) {
+    const el = document.getElementById("s-" + it.key);
+    el.value = state[it.key];
+    sliderEls[it.key] = { el, out: document.getElementById("o-" + it.key), cfg: it };
+    el.addEventListener("input", () => {
+      state[it.key] = parseFloat(el.value);
+      setPresetActive(null);
+      syncSliderUI();
+      render();
+    });
+  }
+  syncSliderUI();
+}
+
+function syncSliderUI() {
+  for (const [key, { el, out, cfg }] of Object.entries(sliderEls)) {
+    el.value = state[key];
+    out.textContent = cfg.fmt(state[key]);
+    const fill = ((state[key] - cfg.min) / (cfg.max - cfg.min)) * 100;
+    el.style.setProperty("--fill", fill.toFixed(1) + "%");
+  }
+}
+
+/* ============================================================
+   Grafieken (SVG, hand-rolled)
+   ============================================================ */
+function lineChart({ height = 265 }) {
+  const W = 780, H = height, pad = { l: 74, r: 22, t: 16, b: 30 };
+  const cur = runModel(state).rows, base = runModel(DEFAULTS).rows;
+  const vals = [...cur.map(r => r.kas), ...base.map(r => r.kas), 0];
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = (hi - lo) || 1; lo -= span * .12; hi += span * .12;
+  const X = i => pad.l + (i / 11) * (W - pad.l - pad.r);
+  const Y = v => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
+  let g = "";
+  for (let t = 0; t <= 4; t++) {
+    const v = lo + (hi - lo) * t / 4, y = Y(v);
+    g += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="rgba(255,255,255,.06)"/>
+          <text x="${pad.l - 10}" y="${y + 4}" text-anchor="end" fill="#6B7382" font-size="10.5" font-family="Inter">${kEUR(v)}</text>`;
+  }
+  for (let i = 0; i < 12; i++)
+    g += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle" fill="#6B7382" font-size="10.5" font-family="Inter">M${i + 1}</text>`;
+  const zeroY = Y(0);
+  g += `<line x1="${pad.l}" y1="${zeroY}" x2="${W - pad.r}" y2="${zeroY}" stroke="rgba(242,115,123,.55)" stroke-width="1.2" stroke-dasharray="2 4"/>`;
+  const path = (rows, sel) => rows.map((r, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(sel(r)).toFixed(1)}`).join(" ");
+  const area = `${path(cur, r => r.kas)} L${X(11)},${zeroY} L${X(0)},${zeroY} Z`;
+  g += `<defs><linearGradient id="gKas" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(226,184,102,.30)"/><stop offset="100%" stop-color="rgba(226,184,102,0)"/>
+        </linearGradient></defs>`;
+  g += `<path d="${area}" fill="url(#gKas)"/>`;
+  g += `<path d="${path(base, r => r.kas)}" fill="none" stroke="#6B7382" stroke-width="1.6" stroke-dasharray="6 5"/>`;
+  g += `<path d="${path(cur, r => r.kas)}" fill="none" stroke="#E2B866" stroke-width="2.6" stroke-linejoin="round"/>`;
+  cur.forEach((r, i) => {
+    g += `<circle cx="${X(i)}" cy="${Y(r.kas)}" r="3.6" fill="#0B0E14" stroke="#E2B866" stroke-width="2">
+            <title>Maand ${r.m}: kas ${eur(r.kas)} · omzet ${eur(r.omzet)} · resultaat ${eur(r.res)}</title></circle>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kaspositie per maand">${g}</svg>`;
+}
+
+function omzetChart({ height = 245 }) {
+  const W = 780, H = height, pad = { l: 74, r: 22, t: 16, b: 30 };
+  const cur = runModel(state).rows, base = runModel(DEFAULTS).rows;
+  const vals = [...cur.map(r => r.omzet), ...cur.map(r => r.ktot), ...base.map(r => r.omzet), 0];
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = (hi - lo) || 1; lo -= span * .10; hi += span * .12;
+  const X = i => pad.l + (i / 11) * (W - pad.l - pad.r);
+  const Y = v => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
+  let g = "";
+  for (let t = 0; t <= 4; t++) {
+    const v = lo + (hi - lo) * t / 4, y = Y(v);
+    g += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="rgba(255,255,255,.06)"/>
+          <text x="${pad.l - 10}" y="${y + 4}" text-anchor="end" fill="#6B7382" font-size="10.5" font-family="Inter">${kEUR(v)}</text>`;
+  }
+  for (let i = 0; i < 12; i++)
+    g += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle" fill="#6B7382" font-size="10.5" font-family="Inter">M${i + 1}</text>`;
+  const path = (rows, sel) => rows.map((r, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(sel(r)).toFixed(1)}`).join(" ");
+  g += `<path d="${path(base, r => r.omzet)}" fill="none" stroke="#6B7382" stroke-width="1.5" stroke-dasharray="6 5"/>`;
+  g += `<path d="${path(cur, r => r.ktot)}" fill="none" stroke="#F2737B" stroke-width="2.2"/>`;
+  g += `<path d="${path(cur, r => r.omzet)}" fill="none" stroke="#5FD39A" stroke-width="2.6" stroke-linejoin="round"/>`;
+  cur.forEach((r, i) => {
+    g += `<circle cx="${X(i)}" cy="${Y(r.omzet)}" r="3.2" fill="#0B0E14" stroke="#5FD39A" stroke-width="2">
+            <title>Maand ${r.m}: omzet ${eur(r.omzet)}</title></circle>`;
+    g += `<circle cx="${X(i)}" cy="${Y(r.ktot)}" r="3.2" fill="#0B0E14" stroke="#F2737B" stroke-width="2">
+            <title>Maand ${r.m}: kosten ${eur(r.ktot)}</title></circle>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Omzet versus kosten">${g}</svg>`;
+}
+
+function barChart({ height = 225 }) {
+  const W = 780, H = height, pad = { l: 74, r: 22, t: 16, b: 30 };
+  const cur = runModel(state).rows;
+  const hi = Math.max(...cur.map(r => r.act), 5) * 1.18;
+  const X = i => pad.l + (i / 12) * (W - pad.l - pad.r) + 6;
+  const bw = (W - pad.l - pad.r) / 12 - 12;
+  const Y = v => pad.t + (1 - v / hi) * (H - pad.t - pad.b);
+  let g = "";
+  for (let t = 0; t <= 4; t++) {
+    const v = hi * t / 4, y = Y(v);
+    g += `<line x1="${pad.l}" y1="${y}" x2="${W - pad.r}" y2="${y}" stroke="rgba(255,255,255,.06)"/>
+          <text x="${pad.l - 10}" y="${y + 4}" text-anchor="end" fill="#6B7382" font-size="10.5" font-family="Inter">${Math.round(v)}</text>`;
+  }
+  cur.forEach((r, i) => {
+    const y = Y(r.act), h = (H - pad.t - pad.b) - (y - pad.t);
+    g += `<rect x="${X(i)}" y="${y}" width="${bw}" height="${Math.max(h, 1)}" rx="5"
+            fill="${r.paid ? "rgba(226,184,102,.75)" : "rgba(134,169,255,.55)"}">
+            <title>Maand ${r.m}: ${r.act} actieve opdrachtgevers${r.paid ? "" : " (gratis beta)"}</title></rect>
+          <text x="${X(i) + bw / 2}" y="${H - 8}" text-anchor="middle" fill="#6B7382" font-size="10.5" font-family="Inter">M${r.m}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Actieve opdrachtgevers per maand">${g}</svg>`;
+}
+
+/* ============================================================
+   Render
+   ============================================================ */
+function delta(el, now, base, { invert = false, money = true, suffix = "" } = {}) {
+  const diff = now - base;
+  if (Math.abs(diff) < 0.5) {
+    el.className = "delta";
+    el.textContent = "gelijk aan base";
+    return;
+  }
+  const good = invert ? diff < 0 : diff > 0;
+  el.className = "delta " + (good ? "up" : "down");
+  const arrow = diff > 0 ? "↑" : "↓";
+  el.textContent = `${arrow} ${money ? eur(Math.abs(diff)) : nf.format(Math.abs(Math.round(diff * 10) / 10))}${suffix} t.o.v. base`;
+}
+
+function render() {
+  const cur = runModel(state), base = runModel(DEFAULTS);
+
+  document.getElementById("betaChip").innerHTML =
+    `Strategie: <b>gratis beta ${state.betaEinde === 0 ? "uitgeschakeld" : "t/m maand " + state.betaEinde}</b> → abonnementen zodra er betalende mensen zijn`;
+
+  // KPI's
+  const be = document.getElementById("kpi-be");
+  be.textContent = cur.be ? `maand ${cur.be}` : "> 12 mnd";
+  be.className = "kpi-value " + (cur.be ? "pos" : "neg");
+  const dBe = document.getElementById("d-be");
+  if (cur.be && base.be) {
+    const dd = base.be - cur.be;
+    dBe.className = "delta " + (dd > 0 ? "up" : dd < 0 ? "down" : "");
+    dBe.textContent = dd === 0 ? "gelijk aan base" : `${dd > 0 ? "↑" : "↓"} ${Math.abs(dd)} maand ${dd > 0 ? "eerder" : "later"} dan base`;
+  } else if (cur.be === base.be) {
+    dBe.className = "delta"; dBe.textContent = "gelijk aan base";
+  } else {
+    dBe.className = "delta " + (cur.be ? "up" : "down");
+    dBe.textContent = cur.be ? "↑ break-even binnen bereik" : "↓ geen break-even binnen 12 mnd";
+  }
+
+  const kap = document.getElementById("kpi-kap");
+  kap.textContent = eur0(cur.minKap);
+  kap.className = "kpi-value " + (cur.minKap > state.startkapitaal ? "neg" : "");
+  delta(document.getElementById("d-kap"), cur.minKap, base.minKap, { invert: true });
+
+  document.getElementById("kpi-dip").textContent = eur(cur.dipKas);
+  document.getElementById("kpi-dip-sub").textContent = `laagste kasstand in maand ${cur.dipMonth}`;
+  delta(document.getElementById("d-dip"), cur.dipKas, base.dipKas);
+
+  const kasEl = document.getElementById("kpi-kas");
+  kasEl.textContent = eur(cur.kas12);
+  kasEl.className = "kpi-value " + (cur.kas12 < 0 ? "neg" : "pos");
+  delta(document.getElementById("d-kas"), cur.kas12, base.kas12);
+
+  const omzEl = document.getElementById("kpi-omzet");
+  omzEl.textContent = eur(cur.omzet12);
+  delta(document.getElementById("d-omzet"), cur.omzet12, base.omzet12);
+
+  const ltvEl = document.getElementById("kpi-ltv");
+  ltvEl.textContent = nf.format(Math.round(cur.ltvCac * 10) / 10);
+  ltvEl.className = "kpi-value " + (cur.ltvCac >= 3 ? "pos" : "neg");
+  delta(document.getElementById("d-ltv"), cur.ltvCac, base.ltvCac, { money: false });
+
+  // Banner
+  const banner = document.getElementById("banner");
+  if (cur.minKap > state.startkapitaal) {
+    const gat = cur.minKap - state.startkapitaal;
+    banner.className = "banner warn";
+    banner.innerHTML = `<div class="icon">⚠</div><div><b>Startkapitaal ontoereikend.</b> In dit scenario heb je <b>${eur0(cur.minKap)}</b> nodig om de kas boven nul te houden — een gat van <b>${eur0(gat)}</b>. Opties: kosten uitstellen (sales-hire), marketing strakker sturen, sneller betaald maken of extra kapitaal ophalen.</div>`;
+  } else {
+    const buffer = state.startkapitaal - cur.minKap;
+    banner.className = "banner ok";
+    banner.innerHTML = `<div class="icon">✓</div><div><b>Startkapitaal voldoende.</b> Met ${eur0(state.startkapitaal)} houd je <b>${eur0(buffer)}</b> buffer over op het dieptepunt${cur.be ? ` en bereik je break-even in <b>maand ${cur.be}</b>` : " — let op: geen break-even binnen 12 maanden"}.</div>`;
+  }
+
+  // Grafieken + tabel
+  document.getElementById("chartKas").innerHTML = lineChart({});
+  document.getElementById("chartOmzet").innerHTML = omzetChart({});
+  document.getElementById("chartKlanten").innerHTML = barChart({});
+  document.getElementById("tabelBody").innerHTML = cur.rows.map(r => `
+    <tr class="${r.paid ? "" : "free-month"}">
+      <td>Maand ${r.m}</td>
+      <td>${r.act}</td>
+      <td>${eur(r.omzet)}</td>
+      <td>${eur(r.ktot)}</td>
+      <td class="${r.res < 0 ? "neg" : "pos"}">${eur(r.res)}</td>
+      <td class="${r.kas < 0 ? "neg" : ""}">${eur(r.kas)}</td>
+    </tr>`).join("");
+}
+
+/* ============================================================
+   Presets & init
+   ============================================================ */
+const PRESETS = {
+  pessimistisch: { churn: .06, cac: 1000, arpu: 190 },
+  base: { churn: .03, cac: 600, arpu: 230 },
+  optimistisch: { churn: .02, cac: 450, arpu: 260 }
+};
+function setPresetActive(name) {
+  document.querySelectorAll("#presets button").forEach(b =>
+    b.classList.toggle("active", b.dataset.preset === name));
+}
+document.getElementById("presets").addEventListener("click", e => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  const p = btn.dataset.preset;
+  if (p === "reset") {
+    Object.assign(state, DEFAULTS);
+    setPresetActive("base");
+  } else {
+    Object.assign(state, DEFAULTS, PRESETS[p]);
+    setPresetActive(p);
+  }
+  syncSliderUI();
+  render();
+});
+
+buildSliders();
+render();
+
+// Testhooks (voor geautomatiseerde verificatie)
+window.__run = runModel;
+window.__defaults = { ...DEFAULTS };
+window.__presets = { ...PRESETS };
+window.__state = () => ({ ...state });
+window.__setState = (patch) => { Object.assign(state, patch); syncSliderUI(); render(); return runModel(state); };
+window.__summary = (p) => {
+  const r = runModel(p ?? state);
+  return { be: r.be, minKap: r.minKap, dipZ: r.dipZ, dipMonth: r.dipMonth,
+           kasZ12: r.kasZ12, kas12: r.kas12, omzet12: r.omzet12, ltvCac: Math.round(r.ltvCac * 10) / 10 };
+};
+</script>
+</body>
+</html>
