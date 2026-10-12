@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpdrachtZeker — DBA Risicoscan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A0F; --bg2:#0C1018;
+    --panel:rgba(255,255,255,.035); --panel2:rgba(255,255,255,.055);
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --text:#ECEEF3; --muted:#98A1B2; --faint:#6B7382;
+    --gold:#E2B866; --gold2:#C9973F; --gold-dim:rgba(226,184,102,.16);
+    --green:#5FD39A; --red:#F2737B; --amber:#F5B85C; --blue:#86A9FF;
+    --serif:"Fraunces",Georgia,serif;
+    --sans:"Inter",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--sans);color:var(--text);min-height:100vh;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(226,184,102,.10), transparent 60%),
+      radial-gradient(800px 600px at -10% 110%, rgba(90,120,220,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1320px;margin:0 auto;padding:36px 32px 72px}
+
+  header{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end;justify-content:space-between;margin-bottom:30px}
+  .brand{display:flex;gap:18px;align-items:center}
+  .mark{width:58px;height:58px;border-radius:17px;flex:none;
+    background:linear-gradient(150deg,#1A1E2B,#0D1017);border:1px solid rgba(226,184,102,.35);
+    box-shadow:0 12px 34px -12px rgba(226,184,102,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center}
+  .mark span{font-family:var(--serif);font-size:30px;font-weight:600;color:var(--gold);line-height:1}
+  h1{font-family:var(--serif);font-size:clamp(26px,3.2vw,38px);font-weight:500;letter-spacing:-.01em;line-height:1.12}
+  h1 em{font-style:italic;color:var(--gold)}
+  .sub{color:var(--muted);font-size:14.5px;margin-top:5px;max-width:620px}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+    background:var(--gold-dim);border:1px solid rgba(226,184,102,.30);color:var(--gold);
+    font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+  .card{background:linear-gradient(165deg,var(--panel2),var(--panel));border:1px solid var(--line);
+    border-radius:20px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
+  .card h2{font-family:var(--serif);font-size:17px;font-weight:500;padding:20px 22px 0;display:flex;align-items:center;gap:10px}
+  .card h2 .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:26px;align-items:start}
+  @media(max-width:1060px){.grid{grid-template-columns:1fr}}
+  .sticky{position:sticky;top:22px}
+
+  /* vragen */
+  .qcard{padding:22px 24px}
+  .qgroup-label{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--faint);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .qgroup-label .rule{flex:1;height:1px;background:var(--line)}
+  .qtitle{font-family:var(--serif);font-size:17.5px;font-weight:500;margin-bottom:14px}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:12px 15px;border-radius:13px;
+    border:1px solid var(--line);cursor:pointer;transition:all .18s ease;margin-bottom:9px;background:rgba(255,255,255,.015)}
+  .opt:hover{border-color:var(--line2);background:rgba(255,255,255,.045)}
+  .opt.sel{border-color:rgba(226,184,102,.55);background:var(--gold-dim)}
+  .opt .radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--faint);flex:none;margin-top:2px;transition:all .18s}
+  .opt.sel .radio{border-color:var(--gold);background:radial-gradient(circle at center, var(--gold) 0 42%, transparent 45%)}
+  .opt .otxt{font-size:13.5px}
+  .qcard{margin-bottom:18px}
+
+  /* resultaat */
+  .verdict{padding:26px 26px 22px;text-align:center;border-radius:18px;border:1px solid;margin-bottom:20px}
+  .verdict.groen{background:rgba(95,211,154,.09);border-color:rgba(95,211,154,.32)}
+  .verdict.oranje{background:rgba(245,184,92,.09);border-color:rgba(245,184,92,.32)}
+  .verdict.rood{background:rgba(242,115,123,.09);border-color:rgba(242,115,123,.32)}
+  .verdict .big{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.01em}
+  .verdict.groen .big{color:var(--green)} .verdict.oranje .big{color:var(--amber)} .verdict.rood .big{color:var(--red)}
+  .verdict .vs{font-size:13px;color:var(--muted);margin-top:6px}
+
+  .progress{height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin:14px 0 4px}
+  .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width .35s ease}
+
+  .group-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .group-row:last-child{border-bottom:0}
+  .gname{flex:1;font-size:13px}
+  .gbar{width:110px;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .gbar i{display:block;height:100%;border-radius:99px}
+  .chip{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:99px}
+  .chip.groen{color:var(--green);background:rgba(95,211,154,.14)}
+  .chip.oranje{color:var(--amber);background:rgba(245,184,92,.14)}
+  .chip.rood{color:var(--red);background:rgba(242,115,123,.14)}
+  .chip.leeg{color:var(--faint);background:rgba(255,255,255,.06)}
+
+  .dossier-item{padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .dossier-item:last-child{border-bottom:0}
+  .di-q{font-size:12.5px;font-weight:600;margin-bottom:3px}
+  .di-a{font-size:12px;color:var(--muted)}
+  .di-why{font-size:11.5px;color:var(--faint);margin-top:5px;padding-left:11px;border-left:2px solid var(--line2)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 26px;border-radius:13px;
+    font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;border:0;transition:all .22s ease;text-decoration:none}
+  .btn-gold{background:linear-gradient(140deg,var(--gold),#D9AE5B);color:#12141C;box-shadow:0 12px 30px -10px rgba(226,184,102,.55)}
+  .btn-gold:hover{transform:translateY(-2px)}
+  .btn-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--line2)}
+  .btn-ghost:hover{background:rgba(255,255,255,.1)}
+
+  .note{font-size:11.5px;color:var(--faint);margin-top:14px;line-height:1.6}
+  .cta{margin-top:22px;padding:24px 26px;border-radius:18px;border:1px solid rgba(226,184,102,.28);
+    background:linear-gradient(150deg, rgba(226,184,102,.10), rgba(226,184,102,.03))}
+  .cta h3{font-family:var(--serif);font-size:19px;font-weight:500;margin-bottom:6px}
+  .cta p{font-size:13px;color:var(--muted);margin-bottom:16px}
+
+  footer{margin-top:42px;padding-top:22px;border-top:1px solid var(--line);color:var(--faint);
+    font-size:12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer b{color:var(--muted)}
+  .disclaimer{margin-top:16px;font-size:11px;color:var(--faint);max-width:760px}
+
+  @media print{
+    body{background:#fff;color:#111}
+    .no-print{display:none !important}
+    .card{border:1px solid #ddd;box-shadow:none;background:#fff;color:#111}
+    .di-why,.di-a{color:#444}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark"><span>O</span></div>
+      <div>
+        <h1>DBA <em>Risicoscan</em></h1>
+        <div class="sub">De wet oordeelt over de <b>feitelijke werksituatie</b> — niet over je contract. Beantwoord 12 vragen en zie direct hoe verdedigbaar je ZZP-samenwerking is, met onderbouwing per criterium.</div>
+      </div>
+    </div>
+    <div class="badge no-print"><span class="dot"></span>Gratis · geen registratie · direct resultaat</div>
+  </header>
+
+  <div class="grid">
+    <!-- ======== VRAGEN ======== -->
+    <main id="vragen"></main>
+
+    <!-- ======== RESULTAAT ======== -->
+    <aside>
+      <div class="sticky">
+        <div class="card" style="padding:24px">
+          <div class="verdict groen" id="verdict">
+            <div class="big" id="verdictTitel">Nog geen antwoorden</div>
+            <div class="vs" id="verdictTekst">Begin met de eerste vraag — je dossier vult zich automatisch.</div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint)">
+            <span>Voortgang</span><span id="voortgang">0 / 12</span>
+          </div>
+          <div class="progress"><i id="voortgangBar" style="width:0%"></i></div>
+
+          <div class="qgroup-label" style="margin-top:18px">Risico per criterium<span class="rule"></span></div>
+          <div id="groepen"></div>
+
+          <div class="qgroup-label" style="margin-top:20px">Jouw dossier<span class="rule"></span></div>
+          <div id="dossier" style="max-height:340px;overflow-y:auto;padding-right:6px">
+            <div class="note" style="margin:0">Nog leeg. Je onderbouwing per criterium verschijnt hier terwijl je antwoordt.</div>
+          </div>
+
+          <div class="no-print" style="display:flex;gap:10px;margin-top:20px">
+            <button class="btn btn-gold" style="flex:1" onclick="window.print()">Dossier opslaan / printen</button>
+            <button class="btn btn-ghost" onclick="resetScan()">Opnieuw</button>
+          </div>
+          <div class="note no-print">Let op: dit is een risicoscan, <b>geen juridisch advies</b>. Geen enkele scan of overeenkomst kan een uitkomst garanderen — het gaat om de feiten van jouw situatie.</div>
+        </div>
+
+        <div class="cta no-print">
+          <h3>Wil je dit automatisch — voor al je opdrachten?</h3>
+          <p>OpdrachtZeker bewaakt de feitelijke werksituatie continu, met waarschuwingen en een verdedigbaar dossier. Doe mee met de <b>gratis beta</b>.</p>
+          <a class="btn btn-gold" href="../landingspagina/index.html">Aanmelden voor de gratis beta →</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="disclaimer">
+    <b>Disclaimer.</b> De DBA-risicoscan is een educatief hulpmiddel dat de criteria gebruikt die de Belastingdienst en rechters hanteren (gezag, vervangbaarheid, ondernemersrisico, organisatie-inbedding). De uitkomst is een risico-indicatie op basis van jouw antwoorden en géén juridisch oordeel, garantie of vervanging van advies door een specialist.
+  </div>
+
+  <footer>
+    <div>Deel van <b>OpdrachtZeker</b> — bewijsplatform voor ZZP-werkrelaties</div>
+    <div>Criteria o.b.v. Belastingdienst &amp; rechtspraak · <b>© 2026</b></div>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ============ DBA-criteria: gezag, vervangbaarheid, ondernemersrisico, inbedding ============ */
+const GROEPEN = [
+  { id: "gezag", naam: "Leiding & toezicht (gezag)", vragen: [
+    { q: "Wie bepaalt hoe het werk wordt gedaan — aanpak, volgorde en werkwijze?",
+      opts: [
+        { s: 0, t: "De opdrachtnemer bepaalt volledig zelf de aanpak", why: "Zelfstandige bepaling van de werkwijze is een sterk ondernemerskenmerk. De Belastingdienst kijkt naar wie inhoudelijk de regie heeft over de uitvoering." },
+        { s: 1, t: "In overleg, de klant mag af en toe bijsturen", why: "Bijsturen is niet direct gezag, maar hoe vaker en gedetailleerder de klant stuurt, hoe meer dit op een gezagsverhouding begint te lijken." },
+        { s: 2, t: "De klant geeft gedetailleerde instructies en controleert het resultaat", why: "Leiding en toezicht op de uitvoering wijst op gezag — het kerncriterium voor een dienstverband. Ook zonder contract kijkt de Belastingdienst hier het eerste naar." },
+      ]},
+    { q: "Wie bepaalt de werktijden en de werklocatie?",
+      opts: [
+        { s: 0, t: "De opdrachtnemer bepaalt zelf wanneer en waar gewerkt wordt", why: "Vrijheid over tijd en plaats is een sterk zelfstandigheidskenmerk." },
+        { s: 1, t: "Vaste overlegmomenten, verder vrij", why: "Overlegmomenten zijn normaal bij opdrachten; verplichte aanwezigheid op vaste tijden weegt zwaarder." },
+        { s: 2, t: "Vaste werktijden en vaste werkplek bij de klant (bijv. 9-tot-5)", why: "Voorgeschreven werktijden en vaste aanwezigheid lijken op een arbeidsovereenkomst — een belangrijk risicosignaal." },
+      ]},
+    { q: "Hoe erg is de opdrachtnemer ingebed in de organisatie van de klant?",
+      opts: [
+        { s: 0, t: "Werkt zelfstandig, nauwelijks interne processen", why: "Zelfstandig werken buiten de interne processen ondersteunt het beeld van een echte ondernemer." },
+        { s: 1, t: "Af en toe projectoverleg met het team", why: "Projectoverleg is normaal; het wordt riskanter wanneer de opdrachtnemer structureel als 'collega' functioneert." },
+        { s: 2, t: "Vaste deelname teamoverleg, e-mail van de klant, bedrijfskleding", why: "Volledige organisatie-inbedding (eigen e-mail, apparatuur, kleding, wekelijkse stand-ups) is een klassiek signaal van schijnzelfstandigheid." },
+      ]},
+  ]},
+  { id: "vervanging", naam: "Vervangbaarheid", vragen: [
+    { q: "Mag de opdrachtnemer zich laten vervangen door iemand anders (sturen)?",
+      opts: [
+        { s: 0, t: "Ja, vrij — vervanging is in de praktijk ook gebruikt", why: "Vervangbaarheid (sturen) is een sterk criterium: een échte ondernemer levert het resultaat, niet persoonlijk verplicht zijn arbeid." },
+        { s: 1, t: "Vervanging mag in overleg, maar gebeurt niet", why: "Op papier mag het, maar als de klant feitelijk persoonlijke uitvoering verwacht, telt de praktijk zwaarder dan de tekst." },
+        { s: 2, t: "Nee — persoonlijke uitvoering is vereist of stilzwijgend afgesproken", why: "Verplichte persoonlijke uitvoering wijst op een arbeidsovereenkomst. Ook 'de klant verwacht dat jij het doet' telt mee." },
+      ]},
+    { q: "Hoe herkenbaar is de opdrachtnemer als zelfstandige?",
+      opts: [
+        { s: 0, t: "Eigen bedrijf zichtbaar: website, portfolio, eigen klanten", why: "Zichtbaar ondernemerschap (acquisitie, eigen zaak, meerdere klanten) ondersteunt de zelfstandige status." },
+        { s: 1, t: "Bekend als extern bij de meeste collega's", why: "Hoe onduidelijker het onderscheid, hoe meer risico dat de situatie als 'dienstverband' wordt gezien." },
+        { s: 2, t: "Treedt op als vast teamlid, met e-mailadres en titel van de klant", why: "Naar buiten treden als medewerker van de klant versterkt het beeld van een organisatorisch ingebedde werknemer." },
+      ]},
+  ]},
+  { id: "risico", naam: "Ondernemersrisico", vragen: [
+    { q: "Hoe wordt de opdrachtnemer betaald?",
+      opts: [
+        { s: 0, t: "Prijs per resultaat / afgebakend project (vast bedrag)", why: "Betaling op resultaat legt het risico bij de ondernemer: als het uitloopt, gaat het van zijn marge af." },
+        { s: 1, t: "Uurtarief met maximum of begroting", why: "Een begrenzing dempt het risico, maar bij overschrijding moet de opdrachtnemer nog steeds onderhandelen over meerwerk." },
+        { s: 2, t: "Uurtarief zonder enig risico op overschrijding of fouten", why: "Betaald worden per gewerkt uur zonder risico lijkt sterk op loon — een zwaarwegend risicosignaal bij handhaving." },
+      ]},
+    { q: "Wie draagt de gevolgen van fouten of te late oplevering?",
+      opts: [
+        { s: 0, t: "De opdrachtnemer: aansprakelijkheid en herstel op eigen kosten", why: "Echte aansprakelijkheid en herstelplicht zijn ondernemersrisico in pure vorm." },
+        { s: 1, t: "Deels — afspraken zijn hierover vaag", why: "Vage risicoverdeling wordt bij twijfel vaak in het nadeel van de opdrachtgever geïnterpreteerd. Leg het vast." },
+        { s: 2, t: "De klant draagt effectief alle risico", why: "Zonder enig risico mist de opdrachtnemer een van de sterkste ondernemerskenmerken." },
+      ]},
+    { q: "Welke eigen investeringen en ondernemerskosten heeft de opdrachtnemer?",
+      opts: [
+        { s: 0, t: "Eigen materiaal, software, verzekeringen, marketing en acquisitie", why: "Eigen investeringen met winstoogmerk zijn een kernkenmerk van het ondernemerschap." },
+        { s: 1, t: "Deels eigen, deels van de klant", why: "Gemengd gebruik is neutraal tot licht risicovol; het totaalplaatje telt." },
+        { s: 2, t: "Nauwelijks — vrijwel alles komt van de klant", why: "Geen eigen investeringen en volledige afhankelijkheid van één klant verzwakt de zelfstandige positie sterk." },
+      ]},
+    { q: "Heeft de opdrachtnemer andere opdrachtgevers?",
+      opts: [
+        { s: 0, t: "Ja, 3 of meer opdrachtgevers naast deze klant", why: "Meerdere klanten tonen een echte onderneming met eigen markt en acquisitie." },
+        { s: 1, t: "1 tot 2 andere klanten", why: "Enige spreiding helpt, maar zware afhankelijkheid van één klant blijft een risico." },
+        { s: 2, t: "Nee — fulltime uitsluitend voor deze klant", why: "Volledige afhankelijkheid van één opdrachtgever, zeker langdurig, is een sterk signaal van schijnzelfstandigheid." },
+      ]},
+  ]},
+  { id: "inbedding", naam: "Organisatie-inbedding & duur", vragen: [
+    { q: "Met welk materiaal en gereedschap wordt gewerkt?",
+      opts: [
+        { s: 0, t: "Volledig eigen materiaal en gereedschap", why: "Eigen gereedschap is een klassiek ondernemerskenmerk (denk aan de bakker die zijn eigen oven heeft)." },
+        { s: 1, t: "Gemengd", why: "Gemengd materiaalgebruik weegt mee in het totaalplaatje; het is zelden op zichzelf doorslaggevend." },
+        { s: 2, t: "Volledig materiaal, laptop en licenties van de klant", why: "Werken met alleen middelen van de klant wijst op inbedding in de organisatie van de klant." },
+      ]},
+    { q: "Lijkt het werk op dat van werknemers van de klant?",
+      opts: [
+        { s: 0, t: "Nee — specialistisch werk dat de klant intern niet doet", why: "Aanvullende, gespecialiseerde taken ondersteunen het beeld van een externe ondernemer." },
+        { s: 1, t: "Deels overlappend", why: "Overlap met vaste functies wekt de indruk dat de opdrachtnemer 'gewoon een extra kracht' is." },
+        { s: 2, t: "Ja — hetzelfde werk als collega's in dezelfde functie", why: "Identiek werk naast werknemers, in dezelfde functie, is een zwaar signaal bij beoordeling van de werksituatie." },
+      ]},
+    { q: "Hoe lang duurt de opdracht al en hoe is de inzet qua uren?",
+      opts: [
+        { s: 0, t: "Projectmatig en afgebakend, met begin en eind", why: "Afgebakende projecten passen bij opdrachtaanvaarding door een ondernemer." },
+        { s: 1, t: "Doorlopend, maar er wisselen projecten en resultaten", why: "Doorlopende inzet is op zichzelf geen dienstverband, maar versterkt andere signalen wel." },
+        { s: 2, t: "Meer dan 2 jaar onafgebroken, fulltime inzet", why: "Langdurige, onafgebroken voltijdinzet bij één klant weegt zwaar mee en versterkt het beeld van een arbeidsovereenkomst." },
+      ]},
+  ]},
+];
+
+const state = {};
+const pct = x => Math.round(x * 100);
+function verdictVan(ratio) { return ratio <= 0.20 ? "groen" : ratio <= 0.50 ? "oranje" : "rood"; }
+const KLEUR = { groen: "var(--green)", oranje: "var(--amber)", rood: "var(--red)" };
+
+function renderVragen() {
+  const el = document.getElementById("vragen");
+  el.innerHTML = GROEPEN.map((g, gi) => `
+    <div class="card qcard" id="grp-${g.id}">
+      <div class="qgroup-label">Criterium ${gi + 1} · ${g.naam}<span class="rule"></span></div>
+      ${g.vragen.map((v, qi) => `
+        <div class="qtitle">${v.q}</div>
+        ${v.opts.map((o, oi) => `
+          <div class="opt ${state[g.id + qi] === oi ? "sel" : ""}" onclick="kies('${g.id}', ${qi}, ${oi})">
+            <div class="radio"></div><div class="otxt">${o.t}</div>
+          </div>`).join("")}
+      `).join("")}
+    </div>`).join("");
+}
+
+function kies(gid, qi, oi) {
+  state[gid + qi] = oi;
+  renderVragen();
+  renderResultaat();
+  const el = document.getElementById("grp-" + gid);
+  if (el) el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function resetScan() {
+  for (const k of Object.keys(state)) delete state[k];
+  renderVragen();
+  renderResultaat();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderResultaat() {
+  let totaal = 0, maxTotaal = 0, beantwoord = 0;
+  const groepRes = GROEPEN.map(g => {
+    let p = 0, m = 0, antwoorden = [];
+    g.vragen.forEach((v, qi) => {
+      m += 2;
+      const keuze = state[g.id + qi];
+      if (keuze !== undefined) {
+        const o = v.opts[keuze];
+        p += o.s; beantwoord++;
+        antwoorden.push({ q: v.q, a: o.t, why: o.why, s: o.s });
+      }
+    });
+    totaal += p; maxTotaal += m;
+    const ratio = m ? p / m : 0;
+    return { g, p, m, ratio, antwoorden, verdict: m ? verdictVan(ratio) : null };
+  });
+
+  // Verdict
+  const ratio = maxTotaal ? totaal / maxTotaal : 0;
+  const v = beantwoord ? verdictVan(ratio) : null;
+  const vEl = document.getElementById("verdict");
+  const titel = { groen: "Groen — goed verdedigbaar", oranje: "Oranje — aandachtspunten", rood: "Rood — serieus risico" };
+  vEl.className = "verdict " + (v || "groen");
+  document.getElementById("verdictTitel").textContent = v ? titel[v] : "Nog geen antwoorden";
+  const tips = {
+    groen: "De feitelijke werksituatie lijkt sterk op zelfstandig ondernemerschap. Houd de praktijk in lijn met je afspraken — de situatie kan in de loop van tijd veranderen.",
+    oranje: "Er zijn signalen die bij handhaving vragen oproepen. Pak de oranje en rode antwoorden hieronder aan: kleine wijzigingen in de praktijk maken vaak het verschil.",
+    rood: "Meerdere zware signalen wijzen op een risico op schijnzelfstandigheid. Overweeg de samenwerking te herstructureren (resultaatsopdracht, vervangbaarheid, meer klanten) of zet de opdracht via payroll/secondment.",
+  };
+  document.getElementById("verdictTekst").textContent = v ? tips[v] : "Begin met de eerste vraag — je dossier vult zich automatisch.";
+
+  document.getElementById("voortgang").textContent = `${beantwoord} / 12`;
+  document.getElementById("voortgangBar").style.width = (beantwoord / 12 * 100) + "%";
+
+  // Groepsbalkjes
+  document.getElementById("groepen").innerHTML = groepRes.map(r => `
+    <div class="group-row">
+      <div class="gname">${r.g.naam}</div>
+      <div class="gbar"><i style="width:${pct(r.ratio)}%;background:${r.verdict ? KLEUR[r.verdict] : "transparent"}"></i></div>
+      <div class="chip ${r.verdict || "leeg"}">${r.verdict || "leeg"}</div>
+    </div>`).join("");
+
+  // Dossier met onderbouwing
+  const d = document.getElementById("dossier");
+  const items = groepRes.filter(r => r.antwoorden.length);
+  if (!items.length) {
+    d.innerHTML = `<div class="note" style="margin:0">Nog leeg. Je onderbouwing per criterium verschijnt hier terwijl je antwoordt.</div>`;
+    return;
+  }
+  d.innerHTML = items.map(r => `
+    <div class="qgroup-label" style="margin:12px 0 4px">${r.g.naam} · <span class="chip ${r.verdict}" style="margin-left:4px">${r.verdict}</span></div>
+    ${r.antwoorden.map(a => `
+      <div class="dossier-item">
+        <div class="di-q">${a.q}</div>
+        <div class="di-a">Antwoord: <b style="color:${a.s === 0 ? "var(--green)" : a.s === 1 ? "var(--amber)" : "var(--red)"}">${a.t}</b></div>
+        <div class="di-why">${a.why}</div>
+      </div>`).join("")}
+  `).join("");
+}
+
+renderVragen();
+renderResultaat();
+</script>
+</body>
+</html>

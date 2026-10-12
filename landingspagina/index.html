@@ -302,11 +302,11 @@
 <script>
 "use strict";
 /* Wachtlijst-formulier.
-   MODUS "local": inschrijvingen worden lokaal bewaard (localStorage) — werkt direct,
-   ideaal voor de beta-fase en demo's.
-   MODUS "endpoint": vul ENDPOINT in (bijv. je Formspree/Buttondown-webhook-URL) en
-   elke inschrijving wordt ook daarheen gestuurd zodra je een provider hebt. */
-const ENDPOINT = ""; // bv. "https://formspree.io/f/xxxxxxx"
+   Elke inschrijving gaat naar de Worker en wordt daar centraal opgeslagen in de
+   database (/api/wachtlijst). Is die niet bereikbaar — bijvoorbeeld wanneer je dit
+   bestand lokaal opent — dan blijft de inschrijving bewaard in localStorage, zodat
+   het formulier nooit stil faalt. */
+const API = "/api/wachtlijst";
 const STORE_KEY = "opdrachtzeker_wachtlijst";
 
 const form = document.getElementById("waitlistForm");
@@ -348,16 +348,21 @@ form.addEventListener("submit", async (e) => {
     tijdstip: new Date().toISOString(),
   };
 
-  if (ENDPOINT) {
-    try {
-      await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(inschrijving),
-      });
-    } catch (_) { /* lokale opslag blijft de vangnet */ }
-  }
-  const plek = bewaar(inschrijving);
+  // Eerst centraal opslaan; lukt dat niet, dan valt de inschrijving terug op
+  // lokale opslag zodat er nooit data verloren gaat.
+  let plek = null;
+  try {
+    const antwoord = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(inschrijving),
+    });
+    if (antwoord.ok) {
+      const data = await antwoord.json();
+      if (typeof data.plek === "number") plek = data.plek;
+    }
+  } catch (_) { /* offline of lokaal bestand: lokale opslag blijft het vangnet */ }
+  if (plek === null) plek = bewaar(inschrijving);
 
   document.getElementById("formWrap").innerHTML = `
     <div class="success">

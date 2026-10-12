@@ -1,0 +1,14 @@
+# Lokale testconfiguratie — draait met: npx wrangler dev --port 8788
+# De echte bindings (database_id, ADMIN_TOKEN) worden door de Sites-deploy gezet.
+name = "opdrachtzeker-beta"
+compatibility_date = "2026-10-12"
+main = "worker.js"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "opdrachtzeker-wachtlijst"
+database_id = "00000000-0000-4000-8000-000000000000"

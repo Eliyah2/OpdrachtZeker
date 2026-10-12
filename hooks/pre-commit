@@ -1,5 +1,8 @@
 #!/bin/sh
-# Draait bij elke commit: xlsx-model en dashboard mogen nooit uit elkaar lopen.
+# Draait bij elke commit:
+#   1. het financieel model (xlsx) valideren
+#   2. xlsx-mirror en dashboard tegen elkaar toetsen
+#   3. controleren of de site-deploymap synchroon is met de bronpagina's
 # Geactiveerd met: git config core.hooksPath hooks
 set -e
 
@@ -11,4 +14,7 @@ echo "pre-commit: valideren financieel model (xlsx)..."
 echo "pre-commit: toetsen model-sync (xlsx-mirror vs dashboard)..."
 "$PY" scripts/toets_model_sync.py
 
-echo "pre-commit: OK - model en dashboard zijn synchroon."
+echo "pre-commit: controleren site-build (bronpagina's vs sites/public)..."
+"$PY" scripts/bouw_site.py --check
+
+echo "pre-commit: OK - model, dashboard en site-build zijn synchroon."
